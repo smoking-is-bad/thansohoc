@@ -85,8 +85,11 @@
   <div class="container">
     <h1>Phần mềm Thần Số Học</h1>
     <form id="numerologyForm">
-      <label for="fullName">Họ và tên:</label>
+      <label for="fullName">Họ và tên (họ đệm + tên đầy đủ):</label>
       <input type="text" id="fullName" value="nguyen cong chinh" required>
+      
+      <label for="nickname">Tên riêng (thường gọi):</label>
+      <input type="text" id="nickname" placeholder="Nhập tên riêng của bạn">
       
       <label for="birthDate">Ngày sinh:</label>
       <input type="date" id="birthDate" value="1987-08-16" required>
@@ -98,7 +101,8 @@
   </div>
 
   <script>
-    // Function to reduce a number to a single digit while preserving the original value.
+    // Function to reduce a number to a single digit (except master numbers) 
+    // and return both the final result and the original total.
     function reduceToSingleDigitWithOriginal(n) {
       let original = n;
       while (n > 9 && (n !== 11 && n !== 22 && n !== 33)) {
@@ -107,7 +111,7 @@
       return { result: n, original: original };
     }
 
-    // Function to sum the digits in a string
+    // Function to sum all digits in a string
     function sumOfDigitsFromString(s) {
       return s.split('').reduce((sum, char) => {
         let digit = parseInt(char);
@@ -115,7 +119,7 @@
       }, 0);
     }
 
-    // 1. Đường đời (Life Path Number): Sum of digits from day, month, year.
+    // 1. Life Path (Đường đời) using Method A: Sum of digits of day, month, year
     function calculateLifePath(day, month, year) {
       let total = sumOfDigitsFromString(day.toString()) +
                   sumOfDigitsFromString(month.toString()) +
@@ -123,40 +127,41 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 5. Ngày sinh (Birthday Number): Reduce the day.
+    // Alternative Life Path (Method B): Reduce each part individually, then sum
+    function calculateLifePathAlt(day, month, year) {
+      let dayRed = reduceToSingleDigitWithOriginal(day).result;
+      let monthRed = reduceToSingleDigitWithOriginal(month).result;
+      let yearRed = reduceToSingleDigitWithOriginal(year).result;
+      return dayRed + monthRed + yearRed;
+    }
+
+    // 5. Birthday Number (Ngày sinh)
     function calculateBirthdayNumber(day) {
       return reduceToSingleDigitWithOriginal(day);
     }
 
-    // 6. Thái độ (Attitude Number): Sum of day + month.
+    // 6. Attitude Number (Thái độ): day + month
     function calculateAttitudeNumber(day, month) {
       let total = day + month;
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 7. Trưởng thành (Maturity Number): Life Path + Attitude.
-    function calculateMaturityNumber(lifePathObj, attitudeObj) {
-      let total = lifePathObj.result + attitudeObj.result;
+    // 7. Maturity Number (Trưởng thành): Life Path + Destiny (Sứ mệnh)
+    function calculateMaturityNumber(lifePathObj, destinyObj) {
+      let total = lifePathObj.result + destinyObj.result;
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 8. Đỉnh cao (Peak Numbers): Calculate four peaks.
+    // 8. Peak Numbers (Đỉnh cao): 4 peaks as defined.
     function calculatePeaks(day, month, year) {
       // Peak 1 = month + day
-      let peak1Total = month + day;
-      let peak1 = reduceToSingleDigitWithOriginal(peak1Total);
-      
+      let peak1 = reduceToSingleDigitWithOriginal(month + day);
       // Peak 2 = day + year
-      let peak2Total = day + year;
-      let peak2 = reduceToSingleDigitWithOriginal(peak2Total);
-      
+      let peak2 = reduceToSingleDigitWithOriginal(day + year);
       // Peak 3 = Peak 1 (original) + Peak 2 (original)
-      let peak3Total = peak1.original + peak2.original;
-      let peak3 = reduceToSingleDigitWithOriginal(peak3Total);
-      
+      let peak3 = reduceToSingleDigitWithOriginal(peak1.original + peak2.original);
       // Peak 4 = month + year
-      let peak4Total = month + year;
-      let peak4 = reduceToSingleDigitWithOriginal(peak4Total);
+      let peak4 = reduceToSingleDigitWithOriginal(month + year);
       
       return {
         peak1: peak1,
@@ -166,8 +171,8 @@
       };
     }
 
-    // 9. Chu kỳ vòng đời (Life Cycle Cycles): 3 cycles.
-    // Tuổi trẻ = month, Trưởng thành = day, Về già = year.
+    // 9. Life Cycle Cycles (Chu kỳ vòng đời):
+    // Youth = month, Mature = day, Old Age = year
     function calculateLifeCycleCycles(day, month, year) {
       let youth = reduceToSingleDigitWithOriginal(month);
       let matureCycle = reduceToSingleDigitWithOriginal(day);
@@ -179,7 +184,7 @@
       };
     }
 
-    // Numerology mapping for the name (Pythagoras)
+    // Numerology mapping (Pythagoras) for letters
     const numerologyMap = {
       A:1, J:1, S:1,
       B:2, K:2, T:2,
@@ -192,7 +197,7 @@
       I:9, R:9
     };
 
-    // 2. Sứ mệnh (Destiny Number): Sum of all letters' values.
+    // 2. Destiny (Sứ mệnh): Sum of all letter values in the name.
     function calculateDestinyNumber(name) {
       let total = 0;
       for (let char of name.toUpperCase()) {
@@ -203,7 +208,7 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 3. Linh hồn (Soul Urge Number): Sum of vowels in the name.
+    // 3. Soul Urge (Linh hồn): Sum of vowels in the name.
     function calculateSoulUrgeNumber(name) {
       const vowels = "AEIOU";
       let total = 0;
@@ -215,7 +220,7 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 4. Nhân cách (Personality Number): Sum of consonants in the name.
+    // 4. Personality (Nhân cách): Sum of consonants in the name.
     function calculatePersonalityNumber(name) {
       const vowels = "AEIOU";
       let total = 0;
@@ -231,6 +236,7 @@
       event.preventDefault();
       
       const fullName = document.getElementById('fullName').value;
+      const nickname = document.getElementById('nickname').value;
       const birthDateValue = document.getElementById('birthDate').value;
       
       let birthDate = new Date(birthDateValue);
@@ -238,24 +244,32 @@
       let month = birthDate.getMonth() + 1;
       let year = birthDate.getFullYear();
       
-      // Calculate all coefficients
+      // Calculate coefficients from birth date
       const lifePath = calculateLifePath(day, month, year);
-      const destiny = calculateDestinyNumber(fullName);
-      const soulUrge = calculateSoulUrgeNumber(fullName);
-      const personality = calculatePersonalityNumber(fullName);
+      const lifePathAlt = calculateLifePathAlt(day, month, year);
       const birthdayNumber = calculateBirthdayNumber(day);
       const attitude = calculateAttitudeNumber(day, month);
-      const maturity = calculateMaturityNumber(lifePath, attitude);
+      const destiny = calculateDestinyNumber(fullName);
+      // Maturity updated = Life Path + Destiny
+      const maturity = calculateMaturityNumber(lifePath, destiny);
       const peaks = calculatePeaks(day, month, year);
       const lifeCycle = calculateLifeCycleCycles(day, month, year);
       
-      // Display the results in the specified order
+      // Calculate coefficients from nickname if provided
+      let altDestiny = null, altSoulUrge = null, altPersonality = null;
+      if(nickname.trim() !== "") {
+        altDestiny = calculateDestinyNumber(nickname);
+        altSoulUrge = calculateSoulUrgeNumber(nickname);
+        altPersonality = calculatePersonalityNumber(nickname);
+      }
+      
+      // Build result HTML (order as required)
       let resultHTML = `
         <h2>Kết quả Thần Số Học</h2>
-        <p><strong>1. Đường đời:</strong> ${lifePath.result} (${lifePath.original})</p>
+        <p><strong>1. Đường đời:</strong> ${lifePath.result} (${lifePath.original}) (${lifePathAlt})</p>
         <p><strong>2. Sứ mệnh:</strong> ${destiny.result} (${destiny.original})</p>
-        <p><strong>3. Linh hồn:</strong> ${soulUrge.result} (${soulUrge.original})</p>
-        <p><strong>4. Nhân cách:</strong> ${personality.result} (${personality.original})</p>
+        <p><strong>3. Linh hồn:</strong> ${calculateSoulUrgeNumber(fullName).result} (${calculateSoulUrgeNumber(fullName).original})</p>
+        <p><strong>4. Nhân cách:</strong> ${calculatePersonalityNumber(fullName).result} (${calculatePersonalityNumber(fullName).original})</p>
         <p><strong>5. Ngày sinh:</strong> ${birthdayNumber.result} (${birthdayNumber.original})</p>
         <p><strong>6. Thái độ:</strong> ${attitude.result} (${attitude.original})</p>
         <p><strong>7. Trưởng thành:</strong> ${maturity.result} (${maturity.original})</p>
@@ -273,6 +287,16 @@
             <li>Về già (Năm sinh): ${lifeCycle.oldAge.result} (${lifeCycle.oldAge.original})</li>
           </ul>
       `;
+      
+      // If a nickname is provided, display the alternative coefficients
+      if(altDestiny !== null) {
+        resultHTML += `
+          <h3>Theo tên riêng (thường gọi):</h3>
+          <p><strong>Sứ mệnh:</strong> ${altDestiny.result} (${altDestiny.original})</p>
+          <p><strong>Linh hồn:</strong> ${altSoulUrge.result} (${altSoulUrge.original})</p>
+          <p><strong>Nhân cách:</strong> ${altPersonality.result} (${altPersonality.original})</p>
+        `;
+      }
       
       document.getElementById('result').innerHTML = resultHTML;
     });
