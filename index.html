@@ -114,7 +114,7 @@
       }, 0);
     }
 
-    // Nếu giá trị ban đầu > 44, trả về tổng các chữ số của nó (một lần) theo định dạng 2 chữ số; nếu không, giữ nguyên.
+    // Nếu giá trị ban đầu > 44, trả về tổng các chữ số của nó (một lần) theo định dạng 2 chữ số; nếu không thì giữ nguyên.
     function getDisplayOriginal(original) {
       if (original > 44) {
         let sumVal = sumOfDigitsFromString(original.toString());
@@ -124,8 +124,8 @@
       }
     }
 
-    // Hàm rút gọn số về 1 chữ số (ngoại trừ master numbers 11, 22, 33) và lưu lại giá trị ban đầu
-    // Trả về đối tượng chứa: result (số sau rút gọn), original (giá trị ban đầu) và display (giá trị hiển thị, đã qua xử lý getDisplayOriginal)
+    // Hàm rút gọn số về 1 chữ số (ngoại trừ master numbers 11, 22, 33) và lưu lại giá trị ban đầu.
+    // Trả về đối tượng chứa: result (số sau rút gọn), original (giá trị ban đầu) và display (giá trị hiển thị đã qua xử lý)
     function reduceToSingleDigitWithOriginal(n) {
       let original = n;
       let reduced = n;
@@ -198,7 +198,7 @@
       I:9, R:9
     };
 
-    // 2. Sứ mệnh: tổng giá trị các ký tự trong tên.
+    // 2. Sứ mệnh: tính tổng giá trị các ký tự trong tên.
     function calculateDestinyNumber(name) {
       let total = 0;
       for (let char of name.toUpperCase()) {
@@ -235,14 +235,15 @@
 
     // Tính các chỉ số "Bài học"
     // Lấy giá trị rút gọn của ngày, tháng, năm.
+    // Lưu ý: Bài học 3 được điều chỉnh = |đỉnh cao 1 - đỉnh cao 2|
     function calculateLessons(day, month, year, peaks) {
       let redMonth = reduceToSingleDigitWithOriginal(month).result;
       let redDay = reduceToSingleDigitWithOriginal(day).result;
       let redYear = reduceToSingleDigitWithOriginal(year).result;
       let lesson1 = Math.abs(redMonth - redDay);              // Bài học 1: |tháng rút gọn - ngày rút gọn|
       let lesson2 = Math.abs(redDay - redYear);                // Bài học 2: |ngày rút gọn - năm rút gọn|
-      let lesson3 = Math.abs(peaks.peak1.result - peaks.peak3.result); // Bài học 3: |đỉnh cao 1 - đỉnh cao 3|
-      let lesson4 = Math.abs(redMonth - redDay);               // Bài học 4: |tháng rút gọn - ngày rút gọn| (như bài học 1)
+      let lesson3 = Math.abs(peaks.peak1.result - peaks.peak2.result); // Bài học 3: |đỉnh cao 1 - đỉnh cao 2|
+      let lesson4 = Math.abs(redMonth - redDay);               // Bài học 4: như bài học 1
       return { lesson1, lesson2, lesson3, lesson4 };
     }
 
@@ -269,7 +270,7 @@
       const lifeCycle = calculateLifeCycleCycles(day, month, year);
       const lessons = calculateLessons(day, month, year, peaks);
       
-      // Tính các chỉ số phụ từ tên riêng (nếu có)
+      // Tính các hệ số phụ từ tên riêng (nếu có)
       let altDestiny = null, altSoulUrge = null, altPersonality = null;
       if (nickname.trim() !== "") {
         altDestiny = calculateDestinyNumber(nickname);
@@ -287,12 +288,12 @@
         <p><strong>5. Ngày sinh:</strong> ${birthdayNumber.result} (${birthdayNumber.display})</p>
         <p><strong>6. Thái độ:</strong> ${attitude.result} (${attitude.display})</p>
         <p><strong>7. Trưởng thành:</strong> ${maturity.result} (${maturity.display})</p>
-        <p><strong>8. Đỉnh cao:</strong></p>
+        <p><strong>8. Đỉnh cao và bài học:</strong></p>
           <ul>
-            <li>Đỉnh 1 (Tháng + Ngày): ${peaks.peak1.result} (${peaks.peak1.display})</li>
-            <li>Đỉnh 2 (Ngày + Năm): ${peaks.peak2.result} (${peaks.peak2.display})</li>
-            <li>Đỉnh 3 (Đỉnh 1 + Đỉnh 2): ${peaks.peak3.result} (${peaks.peak3.display})</li>
-            <li>Đỉnh 4 (Tháng + Năm): ${peaks.peak4.result} (${peaks.peak4.display})</li>
+            <li>Đỉnh 1 (Tháng + Ngày): ${peaks.peak1.result} (${peaks.peak1.display}) - Bài học 1: ${lessons.lesson1}</li>
+            <li>Đỉnh 2 (Ngày + Năm): ${peaks.peak2.result} (${peaks.peak2.display}) - Bài học 2: ${lessons.lesson2}</li>
+            <li>Đỉnh 3 (Đỉnh 1 + Đỉnh 2): ${peaks.peak3.result} (${peaks.peak3.display}) - Bài học 3: ${lessons.lesson3}</li>
+            <li>Đỉnh 4 (Tháng + Năm): ${peaks.peak4.result} (${peaks.peak4.display}) - Bài học 4: ${lessons.lesson4}</li>
           </ul>
         <p><strong>9. Chu kỳ vòng đời:</strong></p>
           <ul>
@@ -300,11 +301,6 @@
             <li>Trưởng thành (Ngày sinh): ${lifeCycle.mature.result} (${lifeCycle.mature.display})</li>
             <li>Về già (Năm sinh): ${lifeCycle.oldAge.result} (${lifeCycle.oldAge.display})</li>
           </ul>
-        <h3>Bài học:</h3>
-          <p><strong>Bài học 1:</strong> ${lessons.lesson1}</p>
-          <p><strong>Bài học 2:</strong> ${lessons.lesson2}</p>
-          <p><strong>Bài học 3:</strong> ${lessons.lesson3}</p>
-          <p><strong>Bài học 4:</strong> ${lessons.lesson4}</p>
       `;
       
       if (altDestiny !== null) {
