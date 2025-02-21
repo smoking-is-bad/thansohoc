@@ -1,1 +1,2 @@
 # thansohoc
+app numerology 
