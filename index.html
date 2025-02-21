@@ -8,6 +8,20 @@
     label, input { display: block; margin-bottom: 10px; }
     input, button { padding: 5px; font-size: 16px; }
     .result { margin-top: 20px; }
+    /* Debug Panel */
+    #debug {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      width: 90%;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: white;
+      padding: 10px;
+      border: 1px solid black;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
@@ -17,23 +31,30 @@
     <input type="text" id="fullName" required>
     
     <label for="birthDate">Ngày sinh:</label>
-    <!-- Sử dụng input type="date" để tiện nhập -->
     <input type="date" id="birthDate" required>
     
     <button type="submit">Tính toán</button>
   </form>
   
   <div class="result" id="result"></div>
-  
+  <div id="debug"><strong>Debug Log:</strong><br></div>
+
   <script>
-    // Hàm rút gọn số về 1 chữ số (giữ nguyên master numbers 11, 22, 33)
-    function reduceToSingleDigit(n) {
+    // Hàm hiển thị debug trên trang
+    function logDebug(message) {
+      let debugDiv = document.getElementById("debug");
+      debugDiv.innerHTML += message + "<br>";
+    }
+
+    // Hàm rút gọn số: trả về object chứa kết quả rút gọn và giá trị ban đầu trước khi rút gọn
+    function reduceToSingleDigitWithOriginal(n) {
+      let original = n;
       while (n > 9 && (n !== 11 && n !== 22 && n !== 33)) {
         n = n.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
       }
-      return n;
+      return { result: n, original: original };
     }
-    
+
     // Tính tổng các chữ số trong một chuỗi số
     function sumOfDigitsFromString(s) {
       return s.split('').reduce((sum, char) => {
@@ -41,58 +62,64 @@
         return !isNaN(digit) ? sum + digit : sum;
       }, 0);
     }
-    
-    // Tính số chủ đạo: tổng các chữ số của ngày, tháng, năm sinh
+
+    // Tính số chủ đạo (Life Path Number)
     function calculateLifePath(day, month, year) {
       let total = sumOfDigitsFromString(day.toString()) +
                   sumOfDigitsFromString(month.toString()) +
                   sumOfDigitsFromString(year.toString());
-      return reduceToSingleDigit(total);
+      return reduceToSingleDigitWithOriginal(total);
     }
-    
-    // Chỉ số ngày sinh: rút gọn ngày sinh
+
+    // Chỉ số ngày sinh (Birthday Number)
     function calculateBirthdayNumber(day) {
-      return reduceToSingleDigit(day);
+      return reduceToSingleDigitWithOriginal(day);
     }
-    
-    // Thái độ: tổng ngày và tháng sinh, rút gọn
+
+    // Thái độ (Attitude Number): tổng ngày + tháng
     function calculateAttitudeNumber(day, month) {
       let total = day + month;
-      return reduceToSingleDigit(total);
+      return reduceToSingleDigitWithOriginal(total);
     }
-    
-    // Trưởng thành: số chủ đạo + thái độ
-    function calculateMaturityNumber(lifePath, attitude) {
-      let total = lifePath + attitude;
-      return reduceToSingleDigit(total);
+
+    // Trưởng thành (Maturity Number): Life Path + Attitude
+    function calculateMaturityNumber(lifePathObj, attitudeObj) {
+      let total = lifePathObj.result + attitudeObj.result;
+      return reduceToSingleDigitWithOriginal(total);
     }
-    
-    // Đỉnh cao: chỉ số ngày sinh + số chủ đạo
-    function calculatePeakNumber(birthday, lifePath) {
-      let total = birthday + lifePath;
-      return reduceToSingleDigit(total);
+
+    // Đỉnh cao (Peak Number): Birthday Number + Life Path
+    function calculatePeakNumber(birthdayObj, lifePathObj) {
+      let total = birthdayObj.result + lifePathObj.result;
+      return reduceToSingleDigitWithOriginal(total);
     }
-    
-    // Chu kỳ vòng đời: rút gọn tổng các chữ số của năm sinh
+
+    // Chu kỳ vòng đời (Life Cycle Number): tổng các chữ số của năm
     function calculateLifeCycleNumber(year) {
       let total = sumOfDigitsFromString(year.toString());
-      return reduceToSingleDigit(total);
+      return reduceToSingleDigitWithOriginal(total);
     }
-    
+
     // Bản đồ chuyển đổi ký tự theo hệ Pythagoras cho tên
     const numerologyMap = {
-      A:1, J:1, S:1,
-      B:2, K:2, T:2,
-      C:3, L:3, U:3,
-      D:4, M:4, V:4,
-      E:5, N:5, W:5,
-      F:6, O:6, X:6,
-      G:7, P:7, Y:7,
-      H:8, Q:8, Z:8,
-      I:9, R:9
+      A:1, J:1, S:1, B:2, K:2, T:2, C:3, L:3, U:3,
+      D:4, M:4, V:4, E:5, N:5, W:5, F:6, O:6, X:6,
+      G:7, P:7, Y:7, H:8, Q:8, Z:8, I:9, R:9
     };
-    
-    // Số định mệnh (Destiny Number) từ tên: tổng giá trị các ký tự rồi rút gọn
+
+    // Tính số linh hồn (Soul Urge Number) từ tên: tổng các nguyên âm
+    function calculateSoulUrgeNumber(name) {
+      const vowels = "AEIOU";
+      let total = 0;
+      for (let char of name.toUpperCase()) {
+        if (vowels.indexOf(char) !== -1 && numerologyMap[char]) {
+          total += numerologyMap[char];
+        }
+      }
+      return reduceToSingleDigitWithOriginal(total);
+    }
+
+    // Tính số định mệnh (Destiny Number) từ tên: tổng tất cả các ký tự theo bản đồ
     function calculateDestinyNumber(name) {
       let total = 0;
       for (let char of name.toUpperCase()) {
@@ -100,22 +127,30 @@
           total += numerologyMap[char];
         }
       }
-      return reduceToSingleDigit(total);
+      return reduceToSingleDigitWithOriginal(total);
     }
-    
+
     // Xử lý sự kiện khi form được submit
     document.getElementById('numerologyForm').addEventListener('submit', function(event) {
       event.preventDefault();
       
       const fullName = document.getElementById('fullName').value;
       const birthDateValue = document.getElementById('birthDate').value;
-      if (!birthDateValue) return;
       
-      // Lấy thông tin ngày, tháng, năm từ input date (định dạng yyyy-mm-dd)
+      logDebug("Full Name: " + fullName);
+      logDebug("Birth Date Input Value: " + birthDateValue);
+      
+      if (!birthDateValue) {
+        logDebug("Lỗi: Ngày sinh không hợp lệ!");
+        return;
+      }
+      
       let birthDate = new Date(birthDateValue);
       let day = birthDate.getDate();
-      let month = birthDate.getMonth() + 1; // Tháng trong JS bắt đầu từ 0
+      let month = birthDate.getMonth() + 1;
       let year = birthDate.getFullYear();
+      
+      logDebug(`Parsed Date: Day=${day}, Month=${month}, Year=${year}`);
       
       // Tính các chỉ số
       const lifePath = calculateLifePath(day, month, year);
@@ -124,18 +159,30 @@
       const maturityNumber = calculateMaturityNumber(lifePath, attitudeNumber);
       const peakNumber = calculatePeakNumber(birthdayNumber, lifePath);
       const lifeCycleNumber = calculateLifeCycleNumber(year);
+      const soulUrgeNumber = calculateSoulUrgeNumber(fullName);
       const destinyNumber = calculateDestinyNumber(fullName);
+      
+      // Log debug
+      logDebug(`Life Path: ${lifePath.result} (${lifePath.original})`);
+      logDebug(`Birthday Number: ${birthdayNumber.result} (${birthdayNumber.original})`);
+      logDebug(`Attitude Number: ${attitudeNumber.result} (${attitudeNumber.original})`);
+      logDebug(`Maturity Number: ${maturityNumber.result} (${maturityNumber.original})`);
+      logDebug(`Peak Number: ${peakNumber.result} (${peakNumber.original})`);
+      logDebug(`Life Cycle Number: ${lifeCycleNumber.result} (${lifeCycleNumber.original})`);
+      logDebug(`Soul Urge Number: ${soulUrgeNumber.result} (${soulUrgeNumber.original})`);
+      logDebug(`Destiny Number: ${destinyNumber.result} (${destinyNumber.original})`);
       
       // Hiển thị kết quả
       let resultHTML = `
         <h2>Kết quả Thần Số Học</h2>
-        <p><strong>Số chủ đạo (Life Path Number):</strong> ${lifePath}</p>
-        <p><strong>Chỉ số ngày sinh (Birthday Number):</strong> ${birthdayNumber}</p>
-        <p><strong>Thái độ (Attitude Number):</strong> ${attitudeNumber}</p>
-        <p><strong>Trưởng thành (Maturity Number):</strong> ${maturityNumber}</p>
-        <p><strong>Đỉnh cao (Peak Number):</strong> ${peakNumber}</p>
-        <p><strong>Chu kỳ vòng đời (Life Cycle Number):</strong> ${lifeCycleNumber}</p>
-        <p><strong>Số định mệnh (Destiny Number):</strong> ${destinyNumber}</p>
+        <p><strong>Số chủ đạo (Life Path Number):</strong> ${lifePath.result} (${lifePath.original})</p>
+        <p><strong>Chỉ số ngày sinh (Birthday Number):</strong> ${birthdayNumber.result} (${birthdayNumber.original})</p>
+        <p><strong>Thái độ (Attitude Number):</strong> ${attitudeNumber.result} (${attitudeNumber.original})</p>
+        <p><strong>Trưởng thành (Maturity Number):</strong> ${maturityNumber.result} (${maturityNumber.original})</p>
+        <p><strong>Đỉnh cao (Peak Number):</strong> ${peakNumber.result} (${peakNumber.original})</p>
+        <p><strong>Chu kỳ vòng đời (Life Cycle Number):</strong> ${lifeCycleNumber.result} (${lifeCycleNumber.original})</p>
+        <p><strong>Số linh hồn (Soul Urge Number):</strong> ${soulUrgeNumber.result} (${soulUrgeNumber.original})</p>
+        <p><strong>Số định mệnh (Destiny Number):</strong> ${destinyNumber.result} (${destinyNumber.original})</p>
       `;
       
       document.getElementById('result').innerHTML = resultHTML;
