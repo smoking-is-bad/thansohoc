@@ -119,9 +119,9 @@
       }, 0);
     }
 
-    // Nếu giá trị ban đầu > 44, trả về tổng các chữ số của nó (một lần) theo định dạng 2 chữ số; nếu không thì giữ nguyên.
+    // Nếu giá trị ban đầu > 99, trả về tổng các chữ số của nó (một lần) theo định dạng 2 chữ số; nếu không thì giữ nguyên.
     function getDisplayOriginal(original) {
-      if (original > 44) {
+      if (original > 99) {
         let sumVal = sumOfDigitsFromString(original.toString());
         return twoDigitFormat(sumVal);
       } else {
