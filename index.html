@@ -39,6 +39,11 @@
       border-radius: 4px;
       font-size: 16px;
     }
+    /* Increase the size of the date input for mobile */
+    input[type="date"] {
+      padding: 14px;
+      font-size: 18px;
+    }
     button {
       width: 100%;
       padding: 10px;
@@ -125,7 +130,6 @@
     }
 
     // Hàm rút gọn số về 1 chữ số (ngoại trừ master numbers 11, 22, 33) và lưu lại giá trị ban đầu.
-    // Trả về đối tượng chứa: result (số sau rút gọn), original (giá trị ban đầu) và display (giá trị hiển thị đã qua xử lý)
     function reduceToSingleDigitWithOriginal(n) {
       let original = n;
       let reduced = n;
@@ -198,7 +202,7 @@
       I:9, R:9
     };
 
-    // 2. Sứ mệnh: tính tổng giá trị các ký tự trong tên.
+    // 2. Sứ mệnh: tổng giá trị các ký tự trong tên.
     function calculateDestinyNumber(name) {
       let total = 0;
       for (let char of name.toUpperCase()) {
@@ -234,8 +238,7 @@
     }
 
     // Tính các chỉ số "Bài học"
-    // Lấy giá trị rút gọn của ngày, tháng, năm.
-    // Lưu ý: Bài học 3 được điều chỉnh = |đỉnh cao 1 - đỉnh cao 2|
+    // Điều chỉnh: Bài học 3 = |đỉnh cao 1 - đỉnh cao 2|
     function calculateLessons(day, month, year, peaks) {
       let redMonth = reduceToSingleDigitWithOriginal(month).result;
       let redDay = reduceToSingleDigitWithOriginal(day).result;
