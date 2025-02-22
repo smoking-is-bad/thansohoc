@@ -39,7 +39,7 @@
       border-radius: 4px;
       font-size: 16px;
     }
-    /* Tăng kích thước input date cho mobile */
+    /* Increase input date size for mobile */
     input[type="date"] {
       padding: 14px;
       font-size: 18px;
@@ -106,7 +106,7 @@
   </div>
 
   <script>
-    // Hàm tính tổng các chữ số của chuỗi số
+    // Calculate the sum of digits from a string
     function sumOfDigitsFromString(s) {
       return s.split('').reduce((sum, char) => {
         let digit = parseInt(char);
@@ -114,30 +114,24 @@
       }, 0);
     }
 
-    // Hàm getDisplayOriginal: lấy chuỗi số ban đầu và tính tổng chữ số;
-    // Nếu tổng > 9 thì trả về tổng đó, nếu không thì giữ nguyên chuỗi ban đầu.
+    // getDisplayOriginal returns the sum of digits (as a string) if the sum is >9; otherwise, returns the original string.
     function getDisplayOriginal(original) {
       let s = original.toString();
       let digitSum = sumOfDigitsFromString(s);
       return (digitSum > 9) ? digitSum.toString() : s;
     }
 
-    // Hàm rút gọn số về 1 chữ số (ngoại trừ master numbers 11,22,33) và lưu lại original
+    // Always reduce a number to a single digit, even for 11, 22, 33.
     function reduceToSingleDigitWithOriginal(n) {
       let original = n;
       let reduced = n;
-      while (reduced > 9 && (reduced !== 11 && reduced !== 22 && reduced !== 33)) {
+      while (reduced > 9) {
         reduced = reduced.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
       }
       return { result: reduced, original: original, display: getDisplayOriginal(original) };
     }
 
-    // Hàm reduceOnce: dùng cho các giá trị master (11,22,33) để giảm một lần về 1 chữ số.
-    function reduceOnce(n) {
-      return sumOfDigitsFromString(n.toString());
-    }
-
-    // 1. Đường đời – Phương pháp A: tổng các chữ số của ngày, tháng, năm (sử dụng năm gốc)
+    // 1. Life Path (Method A): Sum of digits of day, month, year (using the full year)
     function calculateLifePath(day, month, year) {
       let total = sumOfDigitsFromString(day.toString()) +
                   sumOfDigitsFromString(month.toString()) +
@@ -145,7 +139,7 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // Phương pháp B: rút gọn riêng ngày, tháng, năm rồi cộng.
+    // Method B: Sum of individually reduced day, month, year
     function calculateLifePathAlt(day, month, year) {
       let dayRed = reduceToSingleDigitWithOriginal(day).result;
       let monthRed = reduceToSingleDigitWithOriginal(month).result;
@@ -153,33 +147,33 @@
       return dayRed + monthRed + yearRed;
     }
 
-    // 5. Ngày sinh
+    // 5. Birthday Number
     function calculateBirthdayNumber(day) {
       return reduceToSingleDigitWithOriginal(day);
     }
 
-    // 6. Thái độ: day + month
+    // 6. Attitude: day + month
     function calculateAttitudeNumber(day, month) {
       let total = day + month;
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 7. Trưởng thành: Đường đời (A) + Sứ mệnh
+    // 7. Maturity: Life Path (Method A) + Destiny
     function calculateMaturityNumber(lifePathObj, destinyObj) {
       let total = lifePathObj.result + destinyObj.result;
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 8. Đỉnh cao: sử dụng day, month gốc và năm đã giảm (rYear)
+    // 8. Peaks: Use full day and month; use reduced year (rYear)
     function calculatePeaks(day, month, rYear) {
-      let peak1 = reduceToSingleDigitWithOriginal(month + day);            // Đỉnh 1 = tháng + ngày
-      let peak2 = reduceToSingleDigitWithOriginal(day + rYear);               // Đỉnh 2 = ngày + rYear
-      let peak3 = reduceToSingleDigitWithOriginal(peak1.original + peak2.original); // Đỉnh 3 = (đỉnh 1 ban đầu + đỉnh 2 ban đầu)
-      let peak4 = reduceToSingleDigitWithOriginal(month + rYear);             // Đỉnh 4 = tháng + rYear
+      let peak1 = reduceToSingleDigitWithOriginal(month + day);
+      let peak2 = reduceToSingleDigitWithOriginal(day + rYear);
+      let peak3 = reduceToSingleDigitWithOriginal(peak1.original + peak2.original);
+      let peak4 = reduceToSingleDigitWithOriginal(month + rYear);
       return { peak1, peak2, peak3, peak4 };
     }
 
-    // 9. Chu kỳ vòng đời: Tuổi trẻ = tháng, Trưởng thành = ngày, Về già → đổi thành Tuổi già = rYear
+    // 9. Life Cycle: Youth = month, Maturity = day, Old Age (Tuổi già) = rYear
     function calculateLifeCycleCycles(day, month, rYear) {
       let youth = reduceToSingleDigitWithOriginal(month);
       let matureCycle = reduceToSingleDigitWithOriginal(day);
@@ -187,7 +181,7 @@
       return { youth, mature: matureCycle, oldAge };
     }
 
-    // Bản đồ số theo Pythagoras cho tên
+    // Pythagorean Numerology Map for letters
     const numerologyMap = {
       A:1, J:1, S:1,
       B:2, K:2, T:2,
@@ -200,7 +194,7 @@
       I:9, R:9
     };
 
-    // 2. Sứ mệnh: tổng giá trị các ký tự trong tên (họ tên đầy đủ)
+    // 2. Destiny (for full name)
     function calculateDestinyNumber(name) {
       let total = 0;
       for (let char of name.toUpperCase()) {
@@ -211,7 +205,7 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 3. Linh hồn: tổng giá trị các nguyên âm (họ tên đầy đủ)
+    // 3. Soul Urge (for full name)
     function calculateSoulUrgeNumber(name) {
       const vowels = "AEIOU";
       let total = 0;
@@ -223,7 +217,7 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // 4. Nhân cách: tổng giá trị các phụ âm (họ tên đầy đủ)
+    // 4. Personality (for full name)
     function calculatePersonalityNumber(name) {
       const vowels = "AEIOU";
       let total = 0;
@@ -235,26 +229,18 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // Tính các chỉ số "Bài học"
-    // Bài học 1 = |(tháng rút gọn) - (ngày rút gọn)|
-    // Bài học 2 = |(ngày rút gọn) - (rYear)|, với rYear là năm đã giảm
-    // Bài học 3 = |(đỉnh cao 1 - nếu là master, giảm 1 lần) - (đỉnh cao 2 - nếu là master, giảm 1 lần)|  
-    // Bài học 4 = |(tháng rút gọn) - (ngày rút gọn)| (như bài học 1)
+    // Calculate "Lessons"
+    // Lesson 1 = |(reduced month) - (reduced day)|
+    // Lesson 2 = |(reduced day) - (rYear reduced)|
+    // Lesson 3 = |(peak1 result) - (peak2 result)|  (with both peaks already reduced to 1 digit)
+    // Lesson 4 = |(reduced month) - (reduced day)| same as lesson 1
     function calculateLessons(day, month, rYear, peaks) {
       let redMonth = reduceToSingleDigitWithOriginal(month).result;
       let redDay = reduceToSingleDigitWithOriginal(day).result;
       let redYear = reduceToSingleDigitWithOriginal(rYear).result;
       let lesson1 = Math.abs(redMonth - redDay);
       let lesson2 = Math.abs(redDay - redYear);
-      let p1 = peaks.peak1.result;
-      if (p1 === 11 || p1 === 22 || p1 === 33) {
-        p1 = reduceOnce(p1);
-      }
-      let p2 = peaks.peak2.result;
-      if (p2 === 11 || p2 === 22 || p2 === 33) {
-        p2 = reduceOnce(p2);
-      }
-      let lesson3 = Math.abs(p1 - p2);
+      let lesson3 = Math.abs(peaks.peak1.result - peaks.peak2.result);
       let lesson4 = Math.abs(redMonth - redDay);
       return { lesson1, lesson2, lesson3, lesson4 };
     }
@@ -271,10 +257,10 @@
       let month = birthDate.getMonth() + 1;
       let year = birthDate.getFullYear();
       
-      // Giảm năm sinh về 1 chữ số trước khi tính (rYear)
+      // For indices that use the year (except Life Path), reduce the year to one digit.
       let rYear = reduceToSingleDigitWithOriginal(year).result;
       
-      // Tính các hệ số từ ngày sinh
+      // Calculate indices based on birth date.
       const lifePathA = calculateLifePath(day, month, year);
       const lifePathB = calculateLifePathAlt(day, month, year);
       const birthdayNumber = calculateBirthdayNumber(day);
@@ -285,7 +271,7 @@
       const lifeCycle = calculateLifeCycleCycles(day, month, rYear);
       const lessons = calculateLessons(day, month, rYear, peaks);
       
-      // Tính các chỉ số phụ từ tên riêng (nếu có)
+      // Calculate additional indices based on the nickname (if provided)
       let altDestiny = null, altSoulUrge = null, altPersonality = null;
       if (nickname.trim() !== "") {
         altDestiny = calculateDestinyNumber(nickname);
@@ -293,7 +279,7 @@
         altPersonality = calculatePersonalityNumber(nickname);
       }
       
-      // Xây dựng HTML hiển thị kết quả với các nhãn theo yêu cầu
+      // Build the result HTML with updated display:
       let resultHTML = `
         <h2>Kết quả Thần số học tỉnh thức</h2>
         <p><strong>1. Đường đời:</strong> ${lifePathA.result} (${lifePathA.display}) (${lifePathB})</p>
@@ -323,16 +309,16 @@
         <p><strong>7. Trưởng thành:</strong> ${maturity.result} (${maturity.display})</p>
         <p><strong>8. Đỉnh cao và bài học:</strong></p>
           <ul>
-            <li>Đỉnh 1 (Tháng + Ngày): ${peaks.peak1.result} (${peaks.peak1.display}) - Bài học 1: ${lessons.lesson1}</li>
-            <li>Đỉnh 2 (Ngày + rYear): ${peaks.peak2.result} (${peaks.peak2.display}) - Bài học 2: ${lessons.lesson2}</li>
-            <li>Đỉnh 3 (Đỉnh 1 + Đỉnh 2): ${peaks.peak3.result} (${peaks.peak3.display}) - Bài học 3: ${lessons.lesson3}</li>
-            <li>Đỉnh 4 (Tháng + rYear): ${peaks.peak4.result} (${peaks.peak4.display}) - Bài học 4: ${lessons.lesson4}</li>
+            <li>Đỉnh 1: ${peaks.peak1.result} (${peaks.peak1.display}) - Bài học 1: ${lessons.lesson1}</li>
+            <li>Đỉnh 2: ${peaks.peak2.result} (${peaks.peak2.display}) - Bài học 2: ${lessons.lesson2}</li>
+            <li>Đỉnh 3: ${peaks.peak3.result} (${peaks.peak3.display}) - Bài học 3: ${lessons.lesson3}</li>
+            <li>Đỉnh 4: ${peaks.peak4.result} (${peaks.peak4.display}) - Bài học 4: ${lessons.lesson4}</li>
           </ul>
         <p><strong>9. Chu kỳ vòng đời:</strong></p>
           <ul>
-            <li>Tuổi trẻ (Tháng sinh): ${lifeCycle.youth.result} (${lifeCycle.youth.display})</li>
-            <li>Trưởng thành (Ngày sinh): ${lifeCycle.mature.result} (${lifeCycle.mature.display})</li>
-            <li>Tuổi già (rYear): ${lifeCycle.oldAge.result} (${lifeCycle.oldAge.display})</li>
+            <li>Tuổi trẻ: ${lifeCycle.youth.result}</li>
+            <li>Trưởng thành: ${lifeCycle.mature.result}</li>
+            <li>Tuổi già: ${lifeCycle.oldAge.result}</li>
           </ul>
       `;
       
