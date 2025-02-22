@@ -10,7 +10,7 @@
       height: 100%;
       margin: 0;
     }
-    /* Center container vertically and horizontally with scrolling if needed */
+    /* Use flex to center the container and allow scrolling if needed */
     body {
       display: flex;
       align-items: center;
@@ -22,8 +22,8 @@
     .container {
       width: 100%;
       max-width: 600px;
-      max-height: 90vh; /* Set maximum height to 90% of the viewport height */
-      overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
+      max-height: 90vh; /* Limit height to 90% of viewport */
+      overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
       background: #fff;
       border-radius: 8px;
       padding: 20px 30px;
@@ -48,7 +48,7 @@
       border-radius: 4px;
       font-size: 16px;
     }
-    /* Increase input date size for mobile */
+    /* Increase date input size for mobile */
     input[type="date"] {
       padding: 14px;
       font-size: 18px;
@@ -113,5 +113,233 @@
     
     <div class="result" id="result"></div>
   </div>
+
+  <script>
+    // Helper: Sum the digits of a string
+    function sumOfDigitsFromString(s) {
+      return s.split('').reduce((sum, char) => {
+        let digit = parseInt(char);
+        return !isNaN(digit) ? sum + digit : sum;
+      }, 0);
+    }
+
+    // getDisplayOriginal: returns a string showing the sum of digits if that sum is greater than 9;
+    // otherwise, returns the original string.
+    function getDisplayOriginal(original) {
+      let s = original.toString();
+      let digitSum = sumOfDigitsFromString(s);
+      return (digitSum > 9) ? digitSum.toString() : s;
+    }
+
+    // reduceToSingleDigitWithOriginal: always reduce the given number to a single digit,
+    // even if it is a master number (11, 22, 33), and keep the original value.
+    function reduceToSingleDigitWithOriginal(n) {
+      let original = n;
+      let reduced = n;
+      while (reduced > 9) {
+        reduced = reduced.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+      }
+      return { result: reduced, original: original, display: getDisplayOriginal(original) };
+    }
+
+    // For indices that use full year (only Life Path uses full year)
+    function calculateLifePath(day, month, year) {
+      let total = sumOfDigitsFromString(day.toString()) +
+                  sumOfDigitsFromString(month.toString()) +
+                  sumOfDigitsFromString(year.toString());
+      return reduceToSingleDigitWithOriginal(total);
+    }
+
+    // Life Path Method B: Sum of individually reduced day, month, year (using full values)
+    function calculateLifePathAlt(day, month, year) {
+      let dayRed = reduceToSingleDigitWithOriginal(day).result;
+      let monthRed = reduceToSingleDigitWithOriginal(month).result;
+      let yearRed = reduceToSingleDigitWithOriginal(year).result;
+      return dayRed + monthRed + yearRed;
+    }
+
+    // For indices other than Life Path, we reduce day and month first.
+    function calculateBirthdayNumber(day) {
+      return reduceToSingleDigitWithOriginal(day);
+    }
+
+    function calculateAttitudeNumber(day, month) {
+      let rDay = reduceToSingleDigitWithOriginal(day).result;
+      let rMonth = reduceToSingleDigitWithOriginal(month).result;
+      let total = rDay + rMonth;
+      return reduceToSingleDigitWithOriginal(total);
+    }
+
+    // Maturity = Life Path (Method A) + Destiny (using full name)
+    function calculateMaturityNumber(lifePathObj, destinyObj) {
+      let total = lifePathObj.result + destinyObj.result;
+      return reduceToSingleDigitWithOriginal(total);
+    }
+
+    // For indices that use year (peaks, life cycle, lessons), we use rYear (the reduced year)
+    // First, rYear is computed as:
+    // rYear = reduceToSingleDigitWithOriginal(year).result
+    function calculatePeaks(day, month, rYear) {
+      // First, reduce day and month to one digit:
+      let rDay = reduceToSingleDigitWithOriginal(day).result;
+      let rMonth = reduceToSingleDigitWithOriginal(month).result;
+      let peak1 = reduceToSingleDigitWithOriginal(rMonth + rDay);
+      let peak2 = reduceToSingleDigitWithOriginal(rDay + rYear);
+      let peak3 = reduceToSingleDigitWithOriginal((rMonth + rDay) + (rDay + rYear));
+      let peak4 = reduceToSingleDigitWithOriginal(rMonth + rYear);
+      return { peak1, peak2, peak3, peak4 };
+    }
+
+    function calculateLifeCycleCycles(day, month, rYear) {
+      let rDay = reduceToSingleDigitWithOriginal(day);
+      let rMonth = reduceToSingleDigitWithOriginal(month);
+      let oldAge = reduceToSingleDigitWithOriginal(rYear);
+      return { youth: rMonth, mature: rDay, oldAge: oldAge };
+    }
+
+    // Pythagorean Numerology Map for letters
+    const numerologyMap = {
+      A:1, J:1, S:1,
+      B:2, K:2, T:2,
+      C:3, L:3, U:3,
+      D:4, M:4, V:4,
+      E:5, N:5, W:5,
+      F:6, O:6, X:6,
+      G:7, P:7, Y:7,
+      H:8, Q:8, Z:8,
+      I:9, R:9
+    };
+
+    // Destiny (for full name)
+    function calculateDestinyNumber(name) {
+      let total = 0;
+      for (let char of name.toUpperCase()) {
+        if (numerologyMap[char]) {
+          total += numerologyMap[char];
+        }
+      }
+      return reduceToSingleDigitWithOriginal(total);
+    }
+
+    // Soul Urge (for full name)
+    function calculateSoulUrgeNumber(name) {
+      const vowels = "AEIOU";
+      let total = 0;
+      for (let char of name.toUpperCase()) {
+        if (vowels.indexOf(char) !== -1 && numerologyMap[char]) {
+          total += numerologyMap[char];
+        }
+      }
+      return reduceToSingleDigitWithOriginal(total);
+    }
+
+    // Personality (for full name)
+    function calculatePersonalityNumber(name) {
+      const vowels = "AEIOU";
+      let total = 0;
+      for (let char of name.toUpperCase()) {
+        if (numerologyMap[char] && vowels.indexOf(char) === -1) {
+          total += numerologyMap[char];
+        }
+      }
+      return reduceToSingleDigitWithOriginal(total);
+    }
+
+    // Calculate "Lessons"
+    // Lesson 1 = |(reduced month) - (reduced day)|
+    // Lesson 2 = |(reduced day) - (rYear reduced)|
+    // Lesson 3 = |(peak1 result) - (peak2 result)|   (both peaks are already reduced)
+    // Lesson 4 = same as Lesson 1
+    function calculateLessons(day, month, rYear, peaks) {
+      let rDay = reduceToSingleDigitWithOriginal(day).result;
+      let rMonth = reduceToSingleDigitWithOriginal(month).result;
+      let rY = reduceToSingleDigitWithOriginal(rYear).result;
+      let lesson1 = Math.abs(rMonth - rDay);
+      let lesson2 = Math.abs(rDay - rY);
+      let lesson3 = Math.abs(peaks.peak1.result - peaks.peak2.result);
+      let lesson4 = Math.abs(rMonth - rDay);
+      return { lesson1, lesson2, lesson3, lesson4 };
+    }
+
+    document.getElementById('numerologyForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const fullName = document.getElementById('fullName').value;
+      const nickname = document.getElementById('nickname').value;
+      const birthDateValue = document.getElementById('birthDate').value;
+      
+      let birthDate = new Date(birthDateValue);
+      let day = birthDate.getDate();
+      let month = birthDate.getMonth() + 1;
+      let year = birthDate.getFullYear();
+      
+      // For indices using the year (except Life Path), compute rYear:
+      let rYear = reduceToSingleDigitWithOriginal(year).result;
+      
+      // Calculate indices
+      const lifePathA = calculateLifePath(day, month, year);
+      const lifePathB = calculateLifePathAlt(day, month, year);
+      const birthdayNumber = calculateBirthdayNumber(day);
+      const attitude = calculateAttitudeNumber(day, month);
+      const destiny = calculateDestinyNumber(fullName);
+      const maturity = calculateMaturityNumber(lifePathA, destiny);
+      const peaks = calculatePeaks(day, month, rYear);
+      const lifeCycle = calculateLifeCycleCycles(day, month, rYear);
+      const lessons = calculateLessons(day, month, rYear, peaks);
+      
+      // Calculate additional indices from nickname (if provided)
+      let altDestiny = null, altSoulUrge = null, altPersonality = null;
+      if (nickname.trim() !== "") {
+        altDestiny = calculateDestinyNumber(nickname);
+        altSoulUrge = calculateSoulUrgeNumber(nickname);
+        altPersonality = calculatePersonalityNumber(nickname);
+      }
+      
+      // Build result HTML with updated display format
+      let resultHTML = `
+        <h2>Kết quả Thần số học tỉnh thức</h2>
+        <p><strong>1. Đường đời:</strong> ${lifePathA.result} (${lifePathA.display}) (${lifePathB})</p>
+        <p>
+          <strong>2. Sứ mệnh:</strong> 
+          Sứ mệnh lớn ${destiny.result} (${destiny.display})`;
+      if (altDestiny !== null) {
+          resultHTML += `, sứ mệnh nhỏ ${altDestiny.result} (${altDestiny.display})`;
+      }
+      resultHTML += `</p>
+        <p>
+          <strong>3. Linh hồn:</strong> 
+          Linh hồn lớn ${calculateSoulUrgeNumber(fullName).result} (${calculateSoulUrgeNumber(fullName).display})`;
+      if (altSoulUrge !== null) {
+          resultHTML += `, linh hồn nhỏ ${altSoulUrge.result} (${altSoulUrge.display})`;
+      }
+      resultHTML += `</p>
+        <p>
+          <strong>4. Nhân cách:</strong> 
+          Nhân cách lớn ${calculatePersonalityNumber(fullName).result} (${calculatePersonalityNumber(fullName).display})`;
+      if (altPersonality !== null) {
+          resultHTML += `, nhân cách nhỏ ${altPersonality.result} (${altPersonality.display})`;
+      }
+      resultHTML += `</p>
+        <p><strong>5. Ngày sinh:</strong> ${birthdayNumber.result} (${birthdayNumber.display})</p>
+        <p><strong>6. Thái độ:</strong> ${attitude.result} (${attitude.display})</p>
+        <p><strong>7. Trưởng thành:</strong> ${maturity.result} (${maturity.display})</p>
+        <p><strong>8. Đỉnh cao và bài học:</strong></p>
+          <ul>
+            <li>Đỉnh 1: ${peaks.peak1.result} (${peaks.peak1.display}) - Bài học 1: ${lessons.lesson1}</li>
+            <li>Đỉnh 2: ${peaks.peak2.result} (${peaks.peak2.display}) - Bài học 2: ${lessons.lesson2}</li>
+            <li>Đỉnh 3: ${peaks.peak3.result} (${peaks.peak3.display}) - Bài học 3: ${lessons.lesson3}</li>
+            <li>Đỉnh 4: ${peaks.peak4.result} (${peaks.peak4.display}) - Bài học 4: ${lessons.lesson4}</li>
+          </ul>
+        <p><strong>9. Chu kỳ vòng đời:</strong></p>
+          <ul>
+            <li>Tuổi trẻ: ${lifeCycle.youth.result}</li>
+            <li>Trưởng thành: ${lifeCycle.mature.result}</li>
+            <li>Tuổi già: ${lifeCycle.oldAge.result}</li>
+          </ul>
+      `;
+      
+      document.getElementById('result').innerHTML = resultHTML;
+    });
+  </script>
 </body>
 </html>
