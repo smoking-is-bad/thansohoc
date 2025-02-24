@@ -106,7 +106,7 @@
   </div>
 
   <script>
-    // Tính tổng các chữ số của một chuỗi số
+    // Hàm tính tổng các chữ số của một chuỗi số
     function sumOfDigitsFromString(s) {
       return s.split('').reduce((sum, char) => {
         let digit = parseInt(char);
@@ -114,23 +114,22 @@
       }, 0);
     }
 
-    // getDisplayOriginal: nếu tổng các chữ số của original > 9 thì trả về tổng đó dưới dạng chuỗi, nếu không thì giữ nguyên chuỗi ban đầu.
+    // getDisplayOriginal: nếu tổng các chữ số của original > 9 thì trả về tổng đó dưới dạng chuỗi; nếu không thì giữ nguyên chuỗi ban đầu.
     function getDisplayOriginal(original) {
       let s = original.toString();
       let digitSum = sumOfDigitsFromString(s);
       return (digitSum > 9) ? digitSum.toString() : s;
     }
 
-    // checkKarmicDebt: nếu original thuộc {13, 14, 16, 19} thì trả về chuỗi " (Nợ Nghiệp)", nếu không thì rỗng.
+    // Hàm checkKarmicDebt: nếu original nằm trong tập {13, 14, 16, 19} thì trả về chuỗi " (Nợ Nghiệp)", ngược lại trả về rỗng.
     function checkKarmicDebt(original) {
       if ([13, 14, 16, 19].includes(original)) {
-        return "";
+        return " (Nợ Nghiệp)";
       }
       return "";
     }
-    // Ở đây, để hiển thị nợ nghiệp riêng ở cuối, chúng ta không gắn vào từng chỉ số.
 
-    // reduceToSingleDigitWithOriginal: luôn giảm về 1 chữ số (bao gồm cả các số master) và lưu lại original, hiển thị.
+    // reduceToSingleDigitWithOriginal: luôn giảm về 1 chữ số (cả với các số master) và lưu lại original, hiển thị.
     function reduceToSingleDigitWithOriginal(n) {
       let original = n;
       let reduced = n;
@@ -140,25 +139,7 @@
       return { result: reduced, original: original, display: getDisplayOriginal(original) };
     }
 
-    // Hàm lấy danh sách Nợ nghiệp từ các chỉ số: Ngày sinh, Đường đời, Linh hồn, Sứ mệnh.
-    function getKarmicDebtIndices(birthday, lifePath, soulUrge, destiny) {
-      let debts = [];
-      if ([13, 14, 16, 19].includes(birthday)) {
-        debts.push("Ngày sinh (" + birthday + ")");
-      }
-      if ([13, 14, 16, 19].includes(lifePath)) {
-        debts.push("Đường đời (" + lifePath + ")");
-      }
-      if ([13, 14, 16, 19].includes(soulUrge)) {
-        debts.push("Linh hồn (" + soulUrge + ")");
-      }
-      if ([13, 14, 16, 19].includes(destiny)) {
-        debts.push("Sứ mệnh (" + destiny + ")");
-      }
-      return debts;
-    }
-
-    // 1. Đường đời – Method A: dùng giá trị gốc của ngày, tháng, năm.
+    // 1. Đường đời – Method A: sử dụng giá trị gốc của ngày, tháng, năm.
     function calculateLifePath(day, month, year) {
       let total = sumOfDigitsFromString(day.toString()) +
                   sumOfDigitsFromString(month.toString()) +
@@ -174,12 +155,12 @@
       return dayRed + monthRed + yearRed;
     }
 
-    // 5. Ngày sinh: dùng giá trị ngày đã rút gọn.
+    // 5. Ngày sinh: sử dụng giá trị ngày đã rút gọn.
     function calculateBirthdayNumber(day) {
       return reduceToSingleDigitWithOriginal(day);
     }
 
-    // 6. Thái độ: dùng ngày và tháng đã rút gọn.
+    // 6. Thái độ: sử dụng ngày và tháng đã rút gọn.
     function calculateAttitudeNumber(day, month) {
       let redDay = reduceToSingleDigitWithOriginal(day).result;
       let redMonth = reduceToSingleDigitWithOriginal(month).result;
@@ -193,7 +174,7 @@
       return reduceToSingleDigitWithOriginal(total);
     }
 
-    // Với các chỉ số dùng năm, dùng rYear (năm đã giảm về 1 chữ số)
+    // Với các chỉ số dùng năm, dùng rYear (năm đã rút gọn về 1 chữ số)
     function calculatePeaks(day, month, rYear) {
       let rD = reduceToSingleDigitWithOriginal(day).result;
       let rM = reduceToSingleDigitWithOriginal(month).result;
@@ -270,7 +251,7 @@
     // Lesson 1 = |(rM) - (rD)|
     // Lesson 2 = |(rD) - (rYear)|
     // Lesson 3 = |(Peak 1 result) - (Peak 2 result)|
-    // Lesson 4 = |(rM) - (rD)| (như Lesson 1)
+    // Lesson 4 = |(rM) - (rD)|
     function calculateLessons(day, month, rYear, peaks) {
       let rD = reduceToSingleDigitWithOriginal(day).result;
       let rM = reduceToSingleDigitWithOriginal(month).result;
@@ -316,14 +297,25 @@
         altPersonality = calculatePersonalityNumber(nickname);
       }
       
-      // Lấy danh sách Nợ nghiệp từ các chỉ số: Ngày sinh, Đường đời, Linh hồn, Sứ mệnh (sử dụng original)
+      // Tính chỉ số Nợ nghiệp dựa trên original của Ngày sinh, Đường đời (A và B), Linh hồn và Sứ mệnh
       let karmicDebts = getKarmicDebtIndices(
         birthdayNumber.original, 
         lifePathA.original, 
+        lifePathB, 
         calculateSoulUrgeNumber(fullName).original,
         destiny.original
       );
       let karmicDebtDisplay = karmicDebts.length > 0 ? karmicDebts.join(", ") : "";
+      
+      // Tính Tuổi tại đỉnh theo công thức:
+      // Tuổi đỉnh 1 = 36 - Đường đời (lifePathA.result)
+      // Tuổi đỉnh 2 = tuổi đỉnh 1 + 9
+      // Tuổi đỉnh 3 = tuổi đỉnh 2 + 9
+      // Tuổi đỉnh 4 = tuổi đỉnh 3 + 9
+      let agePeak1 = 36 - lifePathA.result;
+      let agePeak2 = agePeak1 + 9;
+      let agePeak3 = agePeak2 + 9;
+      let agePeak4 = agePeak3 + 9;
       
       // Xây dựng HTML hiển thị kết quả
       let resultHTML = `
@@ -355,10 +347,10 @@
         <p><strong>7. Trưởng thành:</strong> ${maturity.result} (${maturity.display})</p>
         <p><strong>8. Đỉnh cao và bài học:</strong></p>
           <ul>
-            <li>Đỉnh 1: ${peaks.peak1.result} (${peaks.peak1.display}) - Bài học 1: ${lessons.lesson1}</li>
-            <li>Đỉnh 2: ${peaks.peak2.result} (${peaks.peak2.display}) - Bài học 2: ${lessons.lesson2}</li>
-            <li>Đỉnh 3: ${peaks.peak3.result} (${peaks.peak3.display}) - Bài học 3: ${lessons.lesson3}</li>
-            <li>Đỉnh 4: ${peaks.peak4.result} (${peaks.peak4.display}) - Bài học 4: ${lessons.lesson4}</li>
+            <li>Đỉnh 1: ${peaks.peak1.result} (${peaks.peak1.display}) - Tuổi: ${agePeak1} - Bài học 1: ${lessons.lesson1}</li>
+            <li>Đỉnh 2: ${peaks.peak2.result} (${peaks.peak2.display}) - Tuổi: ${agePeak2} - Bài học 2: ${lessons.lesson2}</li>
+            <li>Đỉnh 3: ${peaks.peak3.result} (${peaks.peak3.display}) - Tuổi: ${agePeak3} - Bài học 3: ${lessons.lesson3}</li>
+            <li>Đỉnh 4: ${peaks.peak4.result} (${peaks.peak4.display}) - Tuổi: ${agePeak4} - Bài học 4: ${lessons.lesson4}</li>
           </ul>
         <p><strong>9. Chu kỳ vòng đời:</strong></p>
           <ul>
