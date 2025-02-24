@@ -121,13 +121,28 @@
       return (digitSum > 9) ? digitSum.toString() : s;
     }
 
-    // Hàm checkKarmicDebt: nếu original nằm trong tập {13, 14, 16, 19} thì trả về chuỗi " (Nợ Nghiệp)", ngược lại trả về rỗng.
-    function checkKarmicDebt(original) {
-      if ([13, 14, 16, 19].includes(original)) {
-        return " (Nợ Nghiệp)";
+    // Hàm getKarmicDebtIndices: nhận các giá trị original của Ngày sinh, Đường đời A, Đường đời B, Linh hồn, Sứ mệnh.
+    function getKarmicDebtIndices(birthday, lifePathA, lifePathB, soulUrge, destiny) {
+      let debts = [];
+      if ([13, 14, 16, 19].includes(birthday)) {
+        debts.push("Ngày sinh (" + birthday + ")");
       }
-      return "";
+      if ([13, 14, 16, 19].includes(lifePathA)) {
+        debts.push("Đường đời A (" + lifePathA + ")");
+      }
+      if ([13, 14, 16, 19].includes(lifePathB)) {
+        debts.push("Đường đời B (" + lifePathB + ")");
+      }
+      if ([13, 14, 16, 19].includes(soulUrge)) {
+        debts.push("Linh hồn (" + soulUrge + ")");
+      }
+      if ([13, 14, 16, 19].includes(destiny)) {
+        debts.push("Sứ mệnh (" + destiny + ")");
+      }
+      return debts;
     }
+
+
 
     // reduceToSingleDigitWithOriginal: luôn giảm về 1 chữ số (cả với các số master) và lưu lại original, hiển thị.
     function reduceToSingleDigitWithOriginal(n) {
